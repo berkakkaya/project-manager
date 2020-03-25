@@ -267,7 +267,7 @@ $RECYCLE.BIN/
 # End of https://www.gitignore.io/api/venv,linux,python,pycharm,windows,virtualenv,visualstudiocode
 
 # Don't include the settings file
-pm-settings.json
+pm-settings*.json
 
 # Don't include the build folder
 build/

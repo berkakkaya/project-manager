@@ -14,13 +14,12 @@ class SettingsManager(object):
         You can find this file in this path: {self.project_manager_home}\n
         """)
 
-        user_folder_path = self.input_controller.get_input(
+        projects_folder = self.input_controller.get_input(
             "Your projects's home folder (full path): ", self.input_controller.CONTROL_PATH)
-        user_allowed_categorization = self.input_controller.get_input(
-            "Do you want to enable categorization [yes(y) / no(n)]: ", self.input_controller.CONTROL_BOOL)
+        editor_command = input("Your editor's 'open' command (type . for the filepath): ")
         
         with open(f"{self.project_manager_home}/pm-settings.json", "w+") as f:
-            settings = dict(folder_path=user_folder_path, categorization_enabled=user_allowed_categorization)
+            settings = dict(projects_path=projects_folder, editor_command=editor_command)
             dump(settings, f, indent=4)
 
         print("Settings saved.")
