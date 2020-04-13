@@ -271,3 +271,6 @@ pm-settings*.json
 
 # Don't include the build folder
 build/
+
+# Don't include the settings file of VSCode
+.vscode/settings.json
