@@ -22,6 +22,7 @@ if not os.path.exists(f"{PM_HOME}/pm-settings.json"):
 
     settings_manager = SettingsManager(PM_HOME)
     settings_manager.setup()
+    exit()
 else:
     try:
         with open(f"{PM_HOME}/pm-settings.json", "r") as file:
