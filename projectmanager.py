@@ -33,17 +33,17 @@ else:
 
 parser = ArgumentParser("pm", description=f"Project Manager - Easily create, manage and categorize your projects")
 
-options = ["open", "create", "list", "browser", "configure", "config", "reset"]
-options_config = ["list", "get", "set", "open"] # Options of argument 'config'
+options = ["open", "create", "list", "path", "browser", "configure", "config", "reset"]
+options_option = ["list", "get", "set", "open", "projects", "p", "groups", "g"] # Options of argument 'config'
 
 parser.add_argument("action", help="The action you want Project Manager to make", type=str, choices=options)
 parser.add_argument("-v", "--version", action="version", version=__version__)
 
-parser.add_argument("-n", "--name", help="The project you want to specify", type=str, default=None)
+parser.add_argument("-n", "--name", help="The project you want to specify (or group in action 'list [projects]')", type=str, default=None)
 parser.add_argument("-g", "--group", help="The group you want to specify", type=str, default=None)
 parser.add_argument("--key", help="Key value of the setting", type=str, default=None)
 parser.add_argument("--value", help="Value of the setting", type=str, default=None)
-parser.add_argument("-o", "--option", help="The option that will be used in 'config' action", type=str, choices=options_config)
+parser.add_argument("-o", "--option", help="The option that will be used in 'config' and 'list' action", type=str, choices=options_option)
 
 args = parser.parse_args()
 
@@ -98,16 +98,31 @@ elif args.action == "create":
 
 # ANCHOR: List all of the projects, all of the groups or all of the projects in a specified group
 elif args.action == "list":
-    if args.list in ["projects", "p"]:
+    if args.option is None:
+        print(colored("Please specify which type of list you want with --option [projects(p) / groups(g)]", "yellow"))
+        exit(1)
+
+    if args.option in ["projects", "p"]:
         if len(settings["projects"]) == 0: # Check if there are any projects
             print("You don't have any projects.")
         
-        elif args.group: # Check if argument "group" is specified
-            if args.group not in settings["projects"]:
-                print(colored(f"You don't have a group called {args.group}."))
+        elif args.name or args.group: # Check if argument "name" or "group" is specified
+            """
+            User can specify group with --name or --group in this action.
+            So, we need a if-elif-else statement here for taking group from user.
+            """
+            if args.name and args.group: # If both name and group specified
+                print(colored("Ignoring --name. You don't have to specify both :)", "yellow"))
+                group = args.group
+            elif args.name is not None: group = args.name
+            else: group = args.group
+
+            if group not in settings["projects"]:
+                print(colored(f"You don't have a group called {args.group}.", "yellow"))
                 exit(1)
-            print(f"All of the projects in group {args.group} (has {len(settings['projects'][args.group])} projects):")
-            for project in settings["projects"][args.group]:
+            
+            print(f"All of the projects in group {group} (has {len(settings['projects'][group])} projects):")
+            for project in settings["projects"][group]:
                 print(project)
         
         else:
@@ -116,13 +131,28 @@ elif args.action == "list":
                 print(f"{group} (has {len(settings['projects'][group])} project(s))")
                 for project in settings["projects"][group]:
                     print(f"\t{project}")
-    else:
+    
+    elif args.option in ["groups", "g"]:
         if len(settings["projects"]) == 0:
             print("You don't have any groups.")
         else:
             print("All of the groups:")
             for group in settings["projects"]:
                 print(f"{group} (Has {len(settings['projects'][group])} project(s))")
+    
+    else:
+        print(colored(f"You can't use option {args.option} with this action.", "yellow"))
+        exit(1)
+
+# ANCHOR: Print the path of the specified project
+elif args.action == "path":
+    if args.name is None:
+        print(colored("Please specify your project with --name.", "yellow"))
+        exit(1)
+    
+    project_manager = ProjectManager(PM_HOME)
+    project = project_manager.find_project(args.name, args.group)
+    print(project["dir"])
 
 # ANCHOR: Open the repository page in browser
 elif args.action == "browser":
@@ -182,6 +212,10 @@ elif args.action == "config":
         print("Opening the settings file (pm-settings.json) in your editor...")
         os.chdir(PM_HOME)
         os.system(settings["editor_command"].replace(" .", " pm-settings.json"))
+    
+    else:
+        print(colored(f"You can't use option {args.option} in config action", "yellow"))
+        exit(1)
 
 elif args.reset:
     print(colored("WARNING! YOU ARE GOING TO DELETE ALL OF YOUR SETTINGS!", "red", attrs=["bold"]))
