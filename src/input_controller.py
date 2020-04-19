@@ -11,7 +11,7 @@ class InputController(object):
         Checks if the answer is yes(y) or no(n).
     
     get_path(prompt : str) -> str
-        Checks if the path that is specified in answer is exists.
+        Checks if the path that is specified in the answer is exists.
     
     get_str(prompt : str) -> str
         Checks if the answer is blank.
@@ -26,7 +26,7 @@ class InputController(object):
 
     def get_path(self, prompt: str) -> str:
         """
-        Checks if the path that is specified in answer is exists.
+        Checks if the path that is specified in the answer is exists.
 
         Parameters
         ----------
